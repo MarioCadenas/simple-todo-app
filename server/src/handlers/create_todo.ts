@@ -1,14 +1,24 @@
 
+import { db } from '../db';
+import { todosTable } from '../db/schema';
 import { type CreateTodoInput, type Todo } from '../schema';
 
 export const createTodo = async (input: CreateTodoInput): Promise<Todo> => {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is creating a new todo item, persisting it in the database
-    // with status defaulting to 'pending'.
-    return Promise.resolve({
-        id: 0, // Placeholder ID
+  try {
+    // Insert todo record
+    const result = await db.insert(todosTable)
+      .values({
         description: input.description,
-        status: 'pending' as const,
-        created_at: new Date() // Placeholder date
-    } as Todo);
+        // status will default to 'pending' as defined in schema
+        // created_at will default to now() as defined in schema
+      })
+      .returning()
+      .execute();
+
+    const todo = result[0];
+    return todo;
+  } catch (error) {
+    console.error('Todo creation failed:', error);
+    throw error;
+  }
 };
